@@ -444,6 +444,11 @@ def _main() -> int:
         help="Exit silently if the image does not contain empty app descriptors (i.e., already processed). "
         "This option is helpful for integration with build systems.",
     )
+    parser.add_argument(
+        "--output-path",
+        metavar="OUTPUT_PATH",
+        help="The path where the modified firmware image will be saved."
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -506,7 +511,10 @@ def _main() -> int:
     _logger.info(f"Final app descriptor:  {model.app_descriptor!r}")
 
     # Write the resulting image into the output file.
-    out_name = _get_output_file_name(args.firmware_image, model.app_descriptor)
+    if args.output_path:
+        out_name = args.output_path
+    else:
+        out_name = _get_output_file_name(args.firmware_image, model.app_descriptor)
     with open(out_name, "wb") as out_file:
         assert model.validate_app_descriptor(), "Internal logic error: output image validation failed"
         out_file.write(model.image)
